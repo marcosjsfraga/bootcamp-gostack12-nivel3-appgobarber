@@ -6,6 +6,8 @@ import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
 
+import { useAuth } from '../../hooks/auth';
+
 import getValidationErrors from '../../utils/getValidationErrors';
 
 import Input from '../../components/Input';
@@ -32,36 +34,41 @@ const SignIn: React.FC = () => {
 	const passwordInputRef = useRef<TextInput>(null);
 	const navigation = useNavigation();
 
-	const handleSignIn = useCallback(async (data: SigInFormData) => {
-		try {
-			// Clear errors
-			formRef.current?.setErrors({});
+	const { sigIn } = useAuth();
 
-			const schema = Yup.object().shape({
-				email: Yup.string().required('E-mail obrigatório.').email('Informe um e-mail válido.'),
-				password: Yup.string().required('Senha obrigatória.'),
-			});
+	const handleSignIn = useCallback(
+		async (data: SigInFormData) => {
+			try {
+				// Clear errors
+				formRef.current?.setErrors({});
 
-			await schema.validate(data, {
-				abortEarly: false,
-			});
+				const schema = Yup.object().shape({
+					email: Yup.string().required('E-mail obrigatório.').email('Informe um e-mail válido.'),
+					password: Yup.string().required('Senha obrigatória.'),
+				});
 
-			// await sigIn({
-			// 	email: data.email,
-			// 	password: data.password,
-			// });
+				await schema.validate(data, {
+					abortEarly: false,
+				});
 
-			// history.push('/dashboard');
-		} catch (error) {
-			if (error instanceof Yup.ValidationError) {
-				const errors = getValidationErrors(error);
-				formRef.current?.setErrors(errors);
-				return;
+				await sigIn({
+					email: data.email,
+					password: data.password,
+				});
+
+				// history.push('/dashboard');
+			} catch (error) {
+				if (error instanceof Yup.ValidationError) {
+					const errors = getValidationErrors(error);
+					formRef.current?.setErrors(errors);
+					return;
+				}
+
+				Alert.alert('Problema na cautenticação', 'Problema ao fazer login, verifique as informações.');
 			}
-
-			Alert.alert('Problema na cautenticação', 'Problema ao fazer login, verifique as informações.');
-		}
-	}, []);
+		},
+		[sigIn],
+	);
 
 	return (
 		<KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled>

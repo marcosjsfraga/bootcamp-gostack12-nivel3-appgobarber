@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import api from '../../services/api';
 
 import getValidationErrors from '../../utils/getValidationErrors';
 
@@ -28,42 +29,39 @@ const SignUp: React.FC = () => {
 	const emailInputRef = useRef<TextInput>(null);
 	const passwordInputRef = useRef<TextInput>(null);
 
-	const handleSignUp = useCallback(async (data: SignUpFormData) => {
-		try {
-			// Clear errors
-			formRef.current?.setErrors({});
+	const handleSignUp = useCallback(
+		async (data: SignUpFormData) => {
+			try {
+				// Clear errors
+				formRef.current?.setErrors({});
 
-			const schema = Yup.object().shape({
-				name: Yup.string().required('Nome obrigatório.'),
-				email: Yup.string().required('E-mail obrigatório.').email('Informe um e-mail válido.'),
-				password: Yup.string().min(6, 'No mínimo 6 dígitos.'),
-			});
+				const schema = Yup.object().shape({
+					name: Yup.string().required('Nome obrigatório.'),
+					email: Yup.string().required('E-mail obrigatório.').email('Informe um e-mail válido.'),
+					password: Yup.string().min(6, 'No mínimo 6 dígitos.'),
+				});
 
-			await schema.validate(data, {
-				abortEarly: false,
-			});
+				await schema.validate(data, {
+					abortEarly: false,
+				});
 
-			// await api.post('/users', data);
+				await api.post('/users', data);
 
-			// history.push('/');
+				Alert.alert('Você já pode fazer login na aplicação.');
 
-			// addToast({
-			// 	type: 'success',
-			// 	title: 'SignUp',
-			// 	description: 'Você já pode fazer sei login',
-			// });
-		} catch (error) {
-			// const errors = getValidationErrors(error);
-			// formRef.current?.setErrors(errors);
-			if (error instanceof Yup.ValidationError) {
-				const errors = getValidationErrors(error);
-				formRef.current?.setErrors(errors);
-				return;
+				navigation.navigate('SignIn');
+			} catch (error) {
+				if (error instanceof Yup.ValidationError) {
+					const errors = getValidationErrors(error);
+					formRef.current?.setErrors(errors);
+					return;
+				}
+
+				Alert.alert('Erro no cadastro', 'Problema ao criar a conta.');
 			}
-
-			Alert.alert('Erro no cadastro', 'Problema ao criar a conta.');
-		}
-	}, []);
+		},
+		[navigation],
+	);
 
 	return (
 		<KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled>
@@ -109,7 +107,7 @@ const SignUp: React.FC = () => {
 							onSubmitEditing={() => {
 								formRef.current?.submitForm();
 							}}
-							textContentType="newPassword"
+							// textContentType="newPassword"
 							secureTextEntry
 						/>
 					</Form>
