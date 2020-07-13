@@ -110,15 +110,15 @@ const SignUp: React.FC = () => {
 							// textContentType="newPassword"
 							secureTextEntry
 						/>
-					</Form>
 
-					<Button
-						onPress={() => {
-							formRef.current?.submitForm();
-						}}
-					>
-						Salvar
-					</Button>
+						<Button
+							onPress={() => {
+								formRef.current?.submitForm();
+							}}
+						>
+							Salvar
+						</Button>
+					</Form>
 
 					<BackToSignInButton onPress={() => navigation.goBack()}>
 						<Icon name="arrow-left" size={20} color="#fff" />

@@ -105,14 +105,15 @@ const SignIn: React.FC = () => {
 							textContentType="newPassword"
 							secureTextEntry
 						/>
+
+						<Button
+							onPress={() => {
+								formRef.current?.submitForm();
+							}}
+						>
+							Entrar
+						</Button>
 					</Form>
-					<Button
-						onPress={() => {
-							formRef.current?.submitForm();
-						}}
-					>
-						Entrar
-					</Button>
 
 					<ForgotPassword onPress={() => {}}>
 						<ForgotPasswordText>Esqueceu sua senha?</ForgotPasswordText>
