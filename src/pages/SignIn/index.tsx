@@ -34,7 +34,7 @@ const SignIn: React.FC = () => {
 	const passwordInputRef = useRef<TextInput>(null);
 	const navigation = useNavigation();
 
-	const { sigIn } = useAuth();
+	const { signIn } = useAuth();
 
 	const handleSignIn = useCallback(
 		async (data: SigInFormData) => {
@@ -51,7 +51,7 @@ const SignIn: React.FC = () => {
 					abortEarly: false,
 				});
 
-				await sigIn({
+				await signIn({
 					email: data.email,
 					password: data.password,
 				});
@@ -67,7 +67,7 @@ const SignIn: React.FC = () => {
 				Alert.alert('Problema na cautenticação', 'Problema ao fazer login, verifique as informações.');
 			}
 		},
-		[sigIn],
+		[signIn],
 	);
 
 	return (
