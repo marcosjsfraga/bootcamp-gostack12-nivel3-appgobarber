@@ -24,6 +24,7 @@ interface AuthContextData {
 	loading: boolean;
 	signIn(credentials: SigInCredentials): Promise<void>;
 	signOut(): void;
+	updateUser(user: User): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -36,6 +37,8 @@ export const AuthProvider: React.FC = ({ children }) => {
 		async function loadStoragedData(): Promise<void> {
 			const token = await AsyncStorage.getItem('@GoBarber:token');
 			const user = await AsyncStorage.getItem('@GoBarber:user');
+
+			console.log('--> Auth.useEffect...');
 
 			if (token && user) {
 				api.defaults.headers.authorization = `Bearer ${token[1]}`;
@@ -50,6 +53,8 @@ export const AuthProvider: React.FC = ({ children }) => {
 	}, []);
 
 	const signIn = useCallback(async ({ email, password }) => {
+		console.log('--> Auth.signIn...');
+
 		const response = await api.post('/sessions', {
 			email,
 			password,
@@ -69,11 +74,27 @@ export const AuthProvider: React.FC = ({ children }) => {
 		await AsyncStorage.removeItem('@GoBarber:token');
 		await AsyncStorage.removeItem('@GoBarber:user');
 
+		console.log('--> Auth.signOut...');
+
 		setData({} as AuthState);
 	}, []);
 
+	const updateUser = useCallback(
+		async (user: User) => {
+			await AsyncStorage.setItem('@GoBarber:user', JSON.stringify(user));
+
+			setData({
+				token: data.token,
+				user,
+			});
+		},
+		[setData, data.token],
+	);
+
 	return (
-		<AuthContext.Provider value={{ user: data.user, loading, signIn, signOut }}>{children}</AuthContext.Provider>
+		<AuthContext.Provider value={{ user: data.user, loading, signIn, signOut, updateUser }}>
+			{children}
+		</AuthContext.Provider>
 	);
 };
 
